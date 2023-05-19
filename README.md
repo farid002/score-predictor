@@ -1,6 +1,5 @@
 # score-predictor
-python -m venv venv
-venv\Scripts\activate
-pip install -r requirements.txt
-
-python main.py
+1. Create virtual environment `python -m venv venv`
+2. Activate it `venv\Scripts\activate`
+3. Install required packages `pip install -r requirements.txt`
+4. Run with `python main.py`
