@@ -1,0 +1,6 @@
+python-telegram-bot==12.8
+telegram
+requests
+pandas
+scikit-learn
+matplotlib
