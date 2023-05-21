@@ -1,26 +1,27 @@
-import requests
-import messages
+from helper import messages
 import pandas as pd
 from sklearn.linear_model import LinearRegression
 import matplotlib.pyplot as plt
-from prepare_data import extract_input, get_team_id, generate_response
+from helper.prepare_data import extract_input, generate_response
 import telegram
 from telegram import ReplyKeyboardMarkup
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler
-from config import *
-from models import Language, Status
+from config.rapid_api import rapid_api_url
+from config.telegram import telegram_bot_token
+from helper.models import Language, Status
+from helper.api import APICalls
+
+api = APICalls()
 
 
 def estimate_match_score(home_team_id=85, away_team_id=94):
     """Very initial (dummy) match score estimation -- not being used"""
-
-    team_url = f"{api_url}/fixtures/headtohead"
-    headers = {"X-RapidAPI-Key": rapid_api_token, "X-RapidAPI-Host": rapid_api_host}
-    querystring = {
-        "h2h": "85-94",
-    }
-    response = requests.get(team_url, headers=headers, params=querystring)
-    data = response.json()
+    data = api.get_response(
+        url=f"{rapid_api_url}/fixtures/headtohead",
+        querystring={
+            "h2h": f"{home_team_id}-{away_team_id}",
+        },
+    )
 
     df = pd.json_normalize(data["response"])
 
@@ -134,7 +135,7 @@ def process_input(update, context):
     else:
         # Perform estimation based on previous H2H games
         estimation = perform_estimation(team_names, date)
-        prediction_from_api = get_predictions_from_api(fixture)
+        prediction_from_api = api.get_predictions(fixture)
         # Generate response with estimation results adn prediction from API
         response = generate_response(fixture, estimation, prediction_from_api, language)
 
@@ -146,17 +147,14 @@ def process_input(update, context):
 
 def validate_game(team_names, date):
     """check if such game exists"""
-
-    url = f"{api_url}/fixtures/headtohead"
-    headers = {"X-RapidAPI-Key": rapid_api_token, "X-RapidAPI-Host": rapid_api_host}
-
-    team1_id = get_team_id(team_names[0])
-    team2_id = get_team_id(team_names[1])
+    team1_id = api.get_team_id(team_names[0])
+    team2_id = api.get_team_id(team_names[1])
 
     if team1_id and team2_id:
-        querystring = {"h2h": f"{team1_id}-{team2_id}", "date": date, "season": "2022"}
-        response = requests.get(url, headers=headers, params=querystring)
-        data = response.json()
+        data = api.get_response(
+            url=f"{rapid_api_url}/fixtures/headtohead",
+            querystring={"h2h": f"{team1_id}-{team2_id}", "date": date, "season": "2022"},
+        )
 
         if "response" in data and len(data["response"]) > 0:
             # Check if team 2 ID is present in the fixtures
@@ -181,21 +179,6 @@ def perform_estimation(team_names, date):
     }
 
     return estimation
-
-
-def get_predictions_from_api(fixture):
-    url = f"{api_url}/predictions"
-    headers = {"X-RapidAPI-Key": rapid_api_token, "X-RapidAPI-Host": rapid_api_host}
-
-    querystring = {"fixture": fixture["fixture"]["id"]}
-
-    response = requests.get(url, headers=headers, params=querystring)
-    data = response.json()
-
-    if "response" in data:
-        return data["response"][0]
-
-    return None
 
 
 def cancel(update, context):
