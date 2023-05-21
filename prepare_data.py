@@ -4,7 +4,7 @@ import messages
 
 
 def extract_input(message):
-    parts = message.split(',')
+    parts = message.split(",")
 
     if len(parts) != 3:
         return None, None
@@ -19,17 +19,12 @@ def extract_input(message):
 # Get team ID based on team name
 def get_team_id(team_name):
     team_url = "https://api-football-v1.p.rapidapi.com/v3/teams"
-    headers = {
-        "X-RapidAPI-Key": rapid_api_token,
-        "X-RapidAPI-Host": "api-football-v1.p.rapidapi.com"
-    }
-    querystring = {
-        "name": team_name
-    }
+    headers = {"X-RapidAPI-Key": rapid_api_token, "X-RapidAPI-Host": "api-football-v1.p.rapidapi.com"}
+    querystring = {"name": team_name}
     response = requests.get(team_url, headers=headers, params=querystring)
     data = response.json()
-    if 'response' in data and len(data['response']) > 0:
-        return data['response'][0]['team']['id']
+    if "response" in data and len(data["response"]) > 0:
+        return data["response"][0]["team"]["id"]
     return None
 
 
@@ -37,14 +32,14 @@ def generate_response(fixture, estimation, predictions, language):
     if fixture is None:
         return messages.no_such_game[language]
 
-    home_team = fixture['teams']['home']['name']
-    away_team = fixture['teams']['away']['name']
-    date = fixture['fixture']['date']
-    venue = fixture['fixture']['venue']['name']
-    referee = fixture['fixture']['referee']
-    status = fixture['fixture']['status']['long']
-    goals_home = fixture['goals']['home']
-    goals_away = fixture['goals']['away']
+    home_team = fixture["teams"]["home"]["name"]
+    away_team = fixture["teams"]["away"]["name"]
+    date = fixture["fixture"]["date"]
+    venue = fixture["fixture"]["venue"]["name"]
+    referee = fixture["fixture"]["referee"]
+    status = fixture["fixture"]["status"]["long"]
+    goals_home = fixture["goals"]["home"]
+    goals_away = fixture["goals"]["away"]
     home_win_percent = predictions["predictions"]["percent"]["home"]
     away_win_percent = predictions["predictions"]["percent"]["away"]
     draw_percent = predictions["predictions"]["percent"]["draw"]
@@ -64,7 +59,7 @@ def generate_response(fixture, estimation, predictions, language):
     response += f"{predictions['predictions']['winner']['comment']}: {predictions['predictions']['winner']['name']}\n"
 
     try:
-        if float(predictions['predictions']['under_over']) < 0:
+        if float(predictions["predictions"]["under_over"]) < 0:
             response += f"Overall {int(float(predictions['predictions']['under_over']))} goals or less\n"
         else:
             response += f"Overall {int(float(predictions['predictions']['under_over']) + 1)} goals or more\n"
@@ -72,12 +67,12 @@ def generate_response(fixture, estimation, predictions, language):
         print("No under_over data")
 
     response += f"{predictions['teams']['home']['name']} goals: "
-    if float(predictions['predictions']['goals']['home']) < 0:
+    if float(predictions["predictions"]["goals"]["home"]) < 0:
         response += f"{abs(int(float(predictions['predictions']['goals']['home'])))} goals or less\n"
     else:
         response += f"Overall {int(float(predictions['predictions']['goals']['home']) + 1)} goals or more\n"
     response += f"{predictions['teams']['away']['name']} goals: "
-    if float(predictions['predictions']['goals']['away']) < 0:
+    if float(predictions["predictions"]["goals"]["away"]) < 0:
         response += f"{abs(int(float(predictions['predictions']['goals']['away'])))} goals or less\n"
     else:
         response += f"Overall {int(float(predictions['predictions']['goals']['away']) + 1)} goals or more\n"
