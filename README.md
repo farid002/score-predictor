@@ -1,4 +1,4 @@
-TEST - PYTHON 2025 C
+TEST - PYTHON 2025 C rakif
 # score-predictor
 ### Setup
 1. Create virtual environment `python -m venv venv`
