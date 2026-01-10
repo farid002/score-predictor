@@ -166,8 +166,26 @@ def validate_game(team_names, date):
 
 
 def perform_estimation(team_names, date):
-    """Dummy data"""
-
+    """
+    Perform match score estimation based on team names and date.
+    
+    Args:
+        team_names: List containing names of two teams
+        date: Date of the match
+        
+    Returns:
+        dict: Dictionary containing estimated match statistics
+            - score: Predicted match score
+            - penalties: Number of penalties
+            - corners: Number of corners
+            - faults: Number of fouls
+            - red_cards: Number of red cards
+            - yellow_cards: Number of yellow cards
+            - injuries: List of injured players
+    
+    TODO: Implement actual ML model for prediction instead of dummy data
+    """
+    # Currently returns dummy data - to be replaced with actual prediction model
     estimation = {
         "score": "2-1",
         "penalties": 3,
